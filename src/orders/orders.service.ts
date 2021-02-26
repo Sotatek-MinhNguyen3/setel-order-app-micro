@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ORDER_STATUS } from 'const';
+import { ORDER_STATUS } from '../common/constant';
 import { Model } from 'mongoose';
 import { Order } from './orders.model';
+import { CreateOrderDto } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -10,12 +11,8 @@ export class OrderService {
     @InjectModel('Order') private readonly orderModel: Model<Order>,
   ) {}
 
-  async createOrder(
-    uid: string,
-    quantity: number,
-    priceEach: number,
-    status: string,
-  ) {
+  async createOrder(payload: CreateOrderDto) {
+    const { uid, quantity, priceEach, status } = payload;
     const newOrder = new this.orderModel({ uid, quantity, priceEach, status });
     try {
       const result = await newOrder.save();
@@ -27,7 +24,7 @@ export class OrderService {
 
   async getAllOrders() {
     try {
-      const orders = await this.orderModel.find().exec();
+      const orders = await this.orderModel.find({}).sort({ date: -1 }).exec();
       return orders;
     } catch (error) {
       throw new NotFoundException('Get orders failed');
@@ -45,6 +42,13 @@ export class OrderService {
     order.status = ORDER_STATUS.CANCELLED;
     const result = await order.save();
     return result;
+  }
+
+  async updateOrder(payload: Order) {
+    const order = await this.findOrder(payload._id);
+    if (!order) throw new NotFoundException('Order not found');
+    order.status = payload.status;
+    order.save();
   }
 
   private async findOrder(prodId: string): Promise<Order> {
