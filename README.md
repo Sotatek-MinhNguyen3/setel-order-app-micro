@@ -3,9 +3,9 @@
 </p>
 
   <p align="center">A sample order app with NestJS</p>
-  <p align="center">
+  <b align="center">
     Shame on me but you should run this order app first even though it might throw error in order to run payment app as both app are listening to each other, I'm still working on API Gateway as all of this is pretty new to me.
-  </p>
+  </b>
 
 ## Description
 
